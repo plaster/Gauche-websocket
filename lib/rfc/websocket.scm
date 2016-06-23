@@ -2,34 +2,50 @@
   (use gauche.uvector)
   )
 
-(define opcode-continue      #x0 )
-(define opcode-text          #x1 )
-(define opcode-binary        #x2 )
-(define opcode-connection    #x8 )
-(define opcode-ping          #x9 )
-(define opcode-pong          #xA )
+;;;; protocol specification: RFC 6455
+;;;; https://tools.ietf.org/html/rfc6455
 
-(define (symbol<-opcode opcode)
-  (case opcode
-    (( #x0 ) 'continue           )
-    (( #x1 ) 'text               )
-    (( #x2 ) 'binary             )
-    (( #x8 ) 'connection         )
-    (( #x9 ) 'ping               )
-    (( #xA ) 'pong               )
-    (else #f )
+(define (%%mapper<-alist ks vs else-expr)
+  `(lambda (<>)
+     (case <>
+       ,@(map (lambda (k v)
+		`((,k) ,v)
+		)
+	      ks
+	      vs)
+       (else ,else-expr)
+       )))
+
+(define-macro %mapper<-alist %%mapper<-alist)
+
+(define %table-opcode-symbol
+  '(( #x0 . continue )
+    ( #x1 . text )
+    ( #x2 . binary )
+    ;; %x3-7 are reserved for further non-control frames
+    ( #x8 . connection )
+    ( #x9 . ping )
+    ( #xA . pong )
+    ;; %xB-F are reserved for further control frames
     ))
 
-(define (opcode<-symbol s)
-  (case s
-    (( continue   )          #x0 )
-    (( text       )          #x1 )
-    (( binary     )          #x2 )
-    (( connection )          #x8 )
-    (( ping       )          #x9 )
-    (( pong       )          #xA )
-    (else (errorf "unknown symbol: ~s" s) )
-    ))
+(define opcode<-symbol
+  (%mapper<-alist (map cdr %table-opcode-symbol)
+		  (map car %table-opcode-symbol)
+		  (errorf "unknown symbol: ~s" <>)))
+
+(define symbol<-opcode
+  (%mapper<-alist (map car %table-opcode-symbol)
+		  (map cdr %table-opcode-symbol)
+		  #f))
+
+(define opcode-continue      (opcode<-symbol 'continue      ))
+(define opcode-text          (opcode<-symbol 'text          ))
+(define opcode-binary        (opcode<-symbol 'binary        ))
+(define opcode-connection    (opcode<-symbol 'connection    ))
+(define opcode-ping          (opcode<-symbol 'ping          ))
+(define opcode-pong          (opcode<-symbol 'pong          ))
+
 
 (define (build-frame
 	  :key
