@@ -39,6 +39,16 @@
 		  (map (lambda (p) `',(cdr p)) %table-opcode-symbol)
 		  #f))
 
+(define opcode-symbol?
+  (%mapper<-alist (map cdr %table-opcode-symbol)
+		  (map (lambda (_) #t) %table-opcode-symbol)
+		  #f))
+
+(define opcode?
+  (%mapper<-alist (map car %table-opcode-symbol)
+		  (map (lambda (_) #t) %table-opcode-symbol)
+		  #f))
+
 (define opcode-continue      (opcode<-symbol 'continue      ))
 (define opcode-text          (opcode<-symbol 'text          ))
 (define opcode-binary        (opcode<-symbol 'binary        ))
