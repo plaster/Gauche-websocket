@@ -11,8 +11,8 @@
        ,@(map (lambda (k v)
 		`((,k) ,v)
 		)
-	      ks
-	      vs)
+	      (eval ks (current-module))
+	      (eval vs (current-module)))
        (else ,else-expr)
        )))
 
@@ -36,7 +36,7 @@
 
 (define symbol<-opcode
   (%mapper<-alist (map car %table-opcode-symbol)
-		  (map cdr %table-opcode-symbol)
+		  (map (lambda (p) `',(cdr p)) %table-opcode-symbol)
 		  #f))
 
 (define opcode-continue      (opcode<-symbol 'continue      ))
