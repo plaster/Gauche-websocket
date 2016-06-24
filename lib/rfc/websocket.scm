@@ -74,7 +74,7 @@
       (or payload-len
 	  (+ (if extension-data (u8vector-length extension-data) 0)
 	     (if application-data (u8vector-length application-data) 0)
-	     )) ]
+	     ) ) ]
      [(payload-len-b1 payload-len-bs)
       (cond
 	[(<= payload-len 125)
@@ -83,7 +83,7 @@
 	 (values 126
 		 (list (logand 0xFF (ash payload-len -8))
 		       (logand 0xFF (ash payload-len 0))
-		       )) ]
+		       ) ) ]
 	[(<= payload-len 0x7FFFFFFFFFFFFFFF)
 	 (values 127
 		 (list (logand 0xFF (ash payload-len -56))
