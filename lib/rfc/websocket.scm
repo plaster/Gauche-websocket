@@ -75,26 +75,26 @@
 	  (+ (if extension-data (u8vector-length extension-data) 0)
 	     (if application-data (u8vector-length application-data) 0)
 	     )) ]
-     [(payload-len-b1  payload-len-bs)
+     [(payload-len-b1 payload-len-bs)
       (cond
 	[(<= payload-len 125)
-	 (values 125) ]
+	 (values 125 '()) ]
 	[(<= payload-len 0xFFFF)
 	 (values 126
-		 (logand 0xFF (ash payload-len -8))
-		 (logand 0xFF (ash payload-len 0))
-		 ) ]
+		 (list (logand 0xFF (ash payload-len -8))
+		       (logand 0xFF (ash payload-len 0))
+		       )) ]
 	[(<= payload-len 0x7FFFFFFFFFFFFFFF)
 	 (values 127
-		 (logand 0xFF (ash payload-len -56))
-		 (logand 0xFF (ash payload-len -48))
-		 (logand 0xFF (ash payload-len -40))
-		 (logand 0xFF (ash payload-len -32))
-		 (logand 0xFF (ash payload-len -24))
-		 (logand 0xFF (ash payload-len -16))
-		 (logand 0xFF (ash payload-len -8))
-		 (logand 0xFF (ash payload-len 0))
-		 ) ]
+		 (list (logand 0xFF (ash payload-len -56))
+		       (logand 0xFF (ash payload-len -48))
+		       (logand 0xFF (ash payload-len -40))
+		       (logand 0xFF (ash payload-len -32))
+		       (logand 0xFF (ash payload-len -24))
+		       (logand 0xFF (ash payload-len -16))
+		       (logand 0xFF (ash payload-len -8))
+		       (logand 0xFF (ash payload-len 0))
+		       ) ) ]
 	) ]
 
      [(b0 b1)
