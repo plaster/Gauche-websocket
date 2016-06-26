@@ -91,21 +91,21 @@
       (cond
 	[(<= payload-len 125)
 	 (values 125 '()) ]
-	[(<= payload-len 0xFFFF)
+	[(<= payload-len #xFFFF)
 	 (values 126
-		 (list (logand 0xFF (ash payload-len -8))
-		       (logand 0xFF (ash payload-len 0))
+		 (list (logand #xFF (ash payload-len -8))
+		       (logand #xFF (ash payload-len 0))
 		       ) ) ]
-	[(<= payload-len 0x7FFFFFFFFFFFFFFF)
+	[(<= payload-len #x7FFFFFFFFFFFFFFF)
 	 (values 127
-		 (list (logand 0xFF (ash payload-len -56))
-		       (logand 0xFF (ash payload-len -48))
-		       (logand 0xFF (ash payload-len -40))
-		       (logand 0xFF (ash payload-len -32))
-		       (logand 0xFF (ash payload-len -24))
-		       (logand 0xFF (ash payload-len -16))
-		       (logand 0xFF (ash payload-len -8))
-		       (logand 0xFF (ash payload-len 0))
+		 (list (logand #xFF (ash payload-len -56))
+		       (logand #xFF (ash payload-len -48))
+		       (logand #xFF (ash payload-len -40))
+		       (logand #xFF (ash payload-len -32))
+		       (logand #xFF (ash payload-len -24))
+		       (logand #xFF (ash payload-len -16))
+		       (logand #xFF (ash payload-len -8))
+		       (logand #xFF (ash payload-len 0))
 		       ) ) ]
 	) ]
 
