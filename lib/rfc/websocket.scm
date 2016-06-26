@@ -51,6 +51,18 @@
 		  #f))
 (define (assert-opcode x) (or (opcode? x) (errorf "unknown opcode ~s" x)))
 
+(let [[ opcode-list (map car %table-opcode-symbol) ]
+      [ opcode-symbol-list (map cdr %table-opcode-symbol) ]
+      ]
+  (for-each assert-opcode opcode-list)
+  (for-each (^o (or ($ = o $ opcode<-symbol $ symbol<-opcode o)
+		    (errorf "opcode ~s is not invaliant on symbol mapping" o)))
+	    opcode-list)
+  (for-each (^s (or ($ eq? s $ symbol<-opcode $ opcode<-symbol s)
+		    (errorf "symbol ~s is not invaliant on opcode mapping" s)))
+	    opcode-symbol-list)
+  )
+
 (define opcode-continue      (opcode<-symbol 'continue      ))
 (define opcode-text          (opcode<-symbol 'text          ))
 (define opcode-binary        (opcode<-symbol 'binary        ))
