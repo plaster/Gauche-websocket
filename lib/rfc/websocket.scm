@@ -6,6 +6,17 @@
 ;;;; protocol specification: RFC 6455
 ;;;; https://tools.ietf.org/html/rfc6455
 
+(define %table-opcode-symbol
+  '(( #x0 . continue )
+    ( #x1 . text )
+    ( #x2 . binary )
+    ;; %x3-7 are reserved for further non-control frames
+    ( #x8 . connection )
+    ( #x9 . ping )
+    ( #xA . pong )
+    ;; %xB-F are reserved for further control frames
+    ))
+
 (define (%%mapper<-alist ks vs else-expr)
   `(lambda (<>)
      (case <>
@@ -18,17 +29,6 @@
        )))
 
 (define-macro %mapper<-alist %%mapper<-alist)
-
-(define %table-opcode-symbol
-  '(( #x0 . continue )
-    ( #x1 . text )
-    ( #x2 . binary )
-    ;; %x3-7 are reserved for further non-control frames
-    ( #x8 . connection )
-    ( #x9 . ping )
-    ( #xA . pong )
-    ;; %xB-F are reserved for further control frames
-    ))
 
 (define opcode<-symbol
   (%mapper<-alist (map cdr %table-opcode-symbol)
