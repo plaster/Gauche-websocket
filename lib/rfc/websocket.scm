@@ -70,13 +70,16 @@
 (define opcode-ping          (opcode<-symbol 'ping          ))
 (define opcode-pong          (opcode<-symbol 'pong          ))
 
+(define (mask-payload payload-data masking-key)
+  (errorf "not implemented")
+  )
+
 (define (build-frame
 	  :key
 	  [ fin? #f ]
 	  [ opcode (error "opcode required") ]
 	  [ masking-key #f ]
-	  [ extension-data (error "extension-data required") ]
-	  [ application-data (error "application-data required") ]
+	  [ payload-data (error "payload-data required") ]
 	  [ payload-len #f ]
 	  )
   (assert-opcode opcode)
@@ -90,32 +93,28 @@
 
   (let*-values
     [[(payload-len)
-      (or payload-len
-	  (+ (if extension-data (u8vector-length extension-data) 0)
-	     (if application-data (u8vector-length application-data) 0)
-	     ) ) ]
+      (u8vector-length payload-data) ]
      [(payload-len-b1 payload-len-bs)
       (cond
 	[(<= payload-len 125)
-	 (values 125 '()) ]
+	 (values 125 '#u8()) ]
 	[(<= payload-len #xFFFF)
 	 (values 126
-		 (list (logand #xFF (ash payload-len -8))
-		       (logand #xFF (ash payload-len 0))
-		       ) ) ]
+		 (u8vector (logand #xFF (ash payload-len -8))
+			   (logand #xFF (ash payload-len 0))
+			   ) ) ]
 	[(<= payload-len #x7FFFFFFFFFFFFFFF)
 	 (values 127
-		 (list (logand #xFF (ash payload-len -56))
-		       (logand #xFF (ash payload-len -48))
-		       (logand #xFF (ash payload-len -40))
-		       (logand #xFF (ash payload-len -32))
-		       (logand #xFF (ash payload-len -24))
-		       (logand #xFF (ash payload-len -16))
-		       (logand #xFF (ash payload-len -8))
-		       (logand #xFF (ash payload-len 0))
-		       ) ) ]
+		 (u8vector (logand #xFF (ash payload-len -56))
+			   (logand #xFF (ash payload-len -48))
+			   (logand #xFF (ash payload-len -40))
+			   (logand #xFF (ash payload-len -32))
+			   (logand #xFF (ash payload-len -24))
+			   (logand #xFF (ash payload-len -16))
+			   (logand #xFF (ash payload-len -8))
+			   (logand #xFF (ash payload-len 0))
+			   ) ) ]
 	) ]
-
      [(b0 b1)
       (values (logior (ash (if fin? 1 0) 7)
 		      opcode
@@ -125,7 +124,11 @@
 		      )
 	      ) ]
      ]
-    ;; TODO: build
-    #f
-
-    ) )
+    (u8vector-append
+      (u8vector b0 b1)
+      payload-len-bs
+      (or masking-key '#u8())
+      (if masking-key
+	(mask-payload payload-data masking-key)
+	payload-data)
+      ) ) )
