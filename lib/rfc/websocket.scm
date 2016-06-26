@@ -81,6 +81,13 @@
 	  )
   (assert-opcode opcode)
 
+  (and masking-key
+       (or (u8vector? masking-key)
+	   (errorf "masking-key must be u8vector.") )
+       (or ($ = 4 $ u8vector-length masking-key)
+	   (errorf "masking-key length must be 4.") )
+       )
+
   (let*-values
     [[(payload-len)
       (or payload-len
