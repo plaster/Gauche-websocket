@@ -80,7 +80,6 @@
 	  [ opcode (error "opcode required") ]
 	  [ masking-key #f ]
 	  [ payload-data (error "payload-data required") ]
-	  [ payload-len #f ]
 	  )
   (assert-opcode opcode)
 
