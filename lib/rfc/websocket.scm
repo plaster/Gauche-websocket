@@ -70,6 +70,13 @@
 (define opcode-ping          (opcode<-symbol 'ping          ))
 (define opcode-pong          (opcode<-symbol 'pong          ))
 
+(define (assert-masking-key masking-key)
+  (or (u8vector? masking-key)
+      (errorf "masking-key must be u8vector.") )
+  (or ($ = 4 $ u8vector-length masking-key)
+      (errorf "masking-key length must be 4.") )
+  )
+
 (define (mask-payload payload-data masking-key)
   (errorf "not implemented")
   )
@@ -83,17 +90,10 @@
 	  )
   (assert-opcode opcode)
 
-  (and masking-key
-       (or (u8vector? masking-key)
-	   (errorf "masking-key must be u8vector.") )
-       (or ($ = 4 $ u8vector-length masking-key)
-	   (errorf "masking-key length must be 4.") )
-       )
+  (and masking-key (assert-masking-key masking-key))
 
-  (let*-values
-    [[(payload-len)
-      (u8vector-length payload-data) ]
-     [(payload-len-b1 payload-len-bs)
+  (receive (payload-len-b1 payload-len-bs)
+    (let1 payload-len (u8vector-length payload-data)
       (cond
 	[(<= payload-len 125)
 	 (values 125 '#u8()) ]
@@ -113,18 +113,12 @@
 			   (logand #xFF (ash payload-len -8))
 			   (logand #xFF (ash payload-len 0))
 			   ) ) ]
-	) ]
-     [(b0 b1)
-      (values (logior (ash (if fin? 1 0) 7)
-		      opcode
-		      )
-	      (logior (ash (if masking-key 1 0) 7)
-		      payload-len-b1
-		      )
-	      ) ]
-     ]
+	) )
     (u8vector-append
-      (u8vector b0 b1)
+      (u8vector
+	(logior opcode (if fin? #x80 0))
+	(logior payload-len-b1 (if masking-key #x80 0))
+	)
       payload-len-bs
       (or masking-key '#u8())
       (if masking-key
