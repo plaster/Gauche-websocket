@@ -77,9 +77,15 @@
       (errorf "masking-key length must be 4.") )
   )
 
+(define (mask-payload! payload-data masking-key)
+  (dotimes [i (u8vector-length payload-data)]
+    (u8vector-set! payload-data i
+		   (logxor (u8vector-ref payload-data i)
+			   (u8vector-ref masking-key (logand i 3)) ) ) )
+  payload-data )
+
 (define (mask-payload payload-data masking-key)
-  (errorf "not implemented")
-  )
+  (mask-payload! (u8vector-copy payload-data) masking-key))
 
 (define (build-frame
 	  :key
