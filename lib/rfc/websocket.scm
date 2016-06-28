@@ -131,3 +131,39 @@
 	(mask-payload payload-data masking-key)
 	payload-data)
       ) ) )
+
+(define (parse-frame$
+	  :key
+	  [ on-parsed (errorf "on-parsed required") ]
+	  [ buffer-size-default 8000 ]
+	  [ buffer-size-limit 16384000 ]
+	  )
+  (let [[ filled-bytes 0 ]
+	[ parsed-bytes 0 ]
+	[ buffer-size buffer-size-default ]
+	]
+    (let* [[ b (make-u8vector buffer-size) ]
+	   [ reset-buffer!
+	     (lambda ()
+	       (when (> parsed-bytes 0)
+		 (u8vector-copy! b 0
+				 b parsed-bytes filled-bytes
+				 )
+		 (dec! filled-bytes parsed-bytes)
+		 (set! parsed-bytes 0)
+		 ) ) ]
+	   [ extend-buffer!
+	     (lambda ()
+	       (let1 new-size ($ min buffer-size-limit $ * 2 $ buffer-size)
+		 (or (> new-size buffer-size)
+		     (errorf "buffer limit exceeded")
+		     )
+		 (reset-buffer!)
+		 (let1 new-b (make-u8vector new-size)
+		   (u8vector-copy! new-b 0 b 0 filled-bytes)
+		   (set! b new-b)
+		   ) ) ) ]
+	   ]
+      (lambda (in)
+	(error "not implemented")
+	) ) ) )
