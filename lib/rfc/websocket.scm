@@ -198,7 +198,25 @@
               (match (peek-buffer-as-vector 2)
                 [ #f #f ]
                 [ #(b0 b1)
-                  (errorf "not implemented")
-                  (loop (+ p 1))
-                  ]
+                  (let [[ fin? (logbit? b0 7) ]
+                        [ opcode (logand b0 #x7F) ]
+                        [ masked? (logbit? b1 7) ]
+                        [ payload-len-b1 (logand b1 #x7F) ]
+                        ]
+                    (let [[ rest-header-length
+                            (+ (if masked? 4 0)
+                               (case payload-len-b1
+                                 [ ( 127 ) 8 ]
+                                 [ ( 126 ) 2 ]
+                                 [else 0 ]
+                                 ) )
+                            ]
+                          ]
+                      ;; TODO: peek-buffer to determine payload-length
+                      ;; TODO: peek-buffer to determine masking-key
+                      ;; TODO: peek-buffer to load payload
+                      ;; TODO: callback and consume buffer
+                      (errorf "not implemented")
+                      (loop (+ p 1))
+                      ) ) ]
                 ) ) ] ) ) ) ) )
