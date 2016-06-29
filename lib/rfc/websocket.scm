@@ -169,6 +169,13 @@
                    (u8vector-copy! new-b 0 b 0 filled-bytes)
                    (set! b new-b)
                    ) ) ) ]
+	   [ space-buffer!
+	     (lambda (n)
+	       (if (> n (- (u8vector-length b)
+			   (- filled-bytes parsed-bytes)))
+		 (extend-buffer!)
+		 (reset-buffer!)
+		 ) ) ]
            [ recv-buffer!
              (lambda (in)
                (let1 r (read-uvector! b in filled-bytes)
@@ -196,7 +203,9 @@
           [ _
             (let loop [[ p 0 ]]
               (match (peek-buffer-as-vector 2)
-                [ #f #f ]
+                [ #f
+		  (space-buffer! 2)
+		  #f ]
                 [ #(b0 b1)
                   (let [[ fin? (logbit? b0 7) ]
                         [ opcode (logand b0 #x7F) ]
