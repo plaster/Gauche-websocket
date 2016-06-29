@@ -193,7 +193,7 @@
       (lambda (in)
         (match (recv-buffer! in)
           [ (and (? eof-object? ) r) r ]
-          [else
+          [ _
             (let loop [[ p 0 ]]
               (match (peek-buffer-as-vector 2)
                 [ #f #f ]
