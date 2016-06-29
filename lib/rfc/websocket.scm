@@ -2,6 +2,7 @@
   (use gauche.uvector)
   (use srfi-11)
   )
+(select-module rfc.websocket)
 
 ;;;; protocol specification: RFC 6455
 ;;;; https://tools.ietf.org/html/rfc6455
