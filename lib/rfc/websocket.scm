@@ -1,6 +1,7 @@
 (define-module rfc.websocket
   (use gauche.uvector)
   (use srfi-11)
+  (use util.match)
   )
 (select-module rfc.websocket)
 
@@ -180,10 +181,21 @@
              (lambda (n :optional [skip 0])
                (and (>= (+ skip n) (- filled-bytes parsed-bytes))
                     (u8vector-copy b skip (+ skip n)) ) ) ]
+           [ peek-buffer-as-vector
+             (lambda (n :optional [skip 0])
+               (and-let* [[ u (peek-buffer n skip) ]]
+                 (u8vector->vector u) ) ) ]
            ]
       (lambda (in)
-        (recv-buffer! in)
-        (let loop []
-          (errorf "not implemented")
-          (loop)
-          ) ) ) ) )
+        (match (recv-buffer! in)
+          [ (and (? eof-object? ) r) r ]
+          [else
+            (let loop [[ p 0 ]]
+              (match (peek-buffer-as-vector 2)
+                [ #(b0 b1)
+                  (errorf "not implemented")
+                  (loop (+ p 1))
+                  ]
+                [ #f
+                  #f ]
+                ) ) ] ) ) ) ) )
