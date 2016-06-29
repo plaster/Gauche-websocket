@@ -1,5 +1,6 @@
 (define-module rfc.websocket
   (use gauche.uvector)
+  (use gauche.parameter)
   (use srfi-11)
   (use util.match)
   )
@@ -134,11 +135,14 @@
         payload-data)
       ) ) )
 
+(define *parse-buffer-size-default* (make-parameter     8000))
+(define *parse-buffer-size-limit*   (make-parameter 16384000))
+
 (define (parse-frame$
           :key
           [ on-parsed (errorf "on-parsed required") ]
-          [ buffer-size-default 8000 ]
-          [ buffer-size-limit 16384000 ]
+          [ buffer-size-default (*parse-buffer-size-default*) ]
+          [ buffer-size-limit (*parse-buffer-size-limit*) ]
           )
   (let [[ filled-bytes 0 ]
         [ parsed-bytes 0 ]
