@@ -166,5 +166,7 @@
                    ) ) ) ]
            ]
       (lambda (in)
-        (error "not implemented")
-        ) ) ) )
+        (let loop []
+	  (errorf "not implemented")
+	  (loop)
+          ) ) ) ) )
