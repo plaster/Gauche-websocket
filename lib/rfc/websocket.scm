@@ -164,9 +164,26 @@
                    (u8vector-copy! new-b 0 b 0 filled-bytes)
                    (set! b new-b)
                    ) ) ) ]
+           [ recv-buffer!
+             (lambda (in)
+               (let1 r (read-uvector! b in filled-bytes)
+                 (cond
+                   [ (eof-object? r) r ]
+                   [ (= 0 r)         r ]
+                   [else
+                     (inc! filled-bytes r)
+                     ] ) ) ) ]
+           [ consume-buffer!
+             (lambda (n)
+               (inc! parsed-bytes n) ) ]
+           [ peek-buffer
+             (lambda (n :optional [skip 0])
+               (and (>= (+ skip n) (- filled-bytes parsed-bytes))
+                    (u8vector-copy b skip (+ skip n)) ) ) ]
            ]
       (lambda (in)
+        (recv-buffer! in)
         (let loop []
-	  (errorf "not implemented")
-	  (loop)
+          (errorf "not implemented")
+          (loop)
           ) ) ) ) )
