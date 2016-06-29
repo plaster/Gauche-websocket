@@ -196,10 +196,9 @@
           [else
             (let loop [[ p 0 ]]
               (match (peek-buffer-as-vector 2)
+                [ #f #f ]
                 [ #(b0 b1)
                   (errorf "not implemented")
                   (loop (+ p 1))
                   ]
-                [ #f
-                  #f ]
                 ) ) ] ) ) ) ) )
