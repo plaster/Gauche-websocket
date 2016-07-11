@@ -192,40 +192,37 @@
              (lambda (n :optional [skip 0])
                (and (>= (+ skip n) (- filled-bytes parsed-bytes))
                     (u8vector-copy b skip (+ skip n)) ) ) ]
-           [ peek-buffer-as-vector
-             (lambda (n :optional [skip 0])
-               (and-let* [[ u (peek-buffer n skip) ]]
-                 (u8vector->vector u) ) ) ]
            ]
       (lambda (in)
         (match (recv-buffer! in)
           [ (and (? eof-object? ) r) r ]
           [ _
-            (let loop [[ p 0 ]]
-              (match (peek-buffer-as-vector 2)
-                [ #f
-		  (space-buffer! 2)
-		  #f ]
-                [ #(b0 b1)
-                  (let [[ fin? (logbit? b0 7) ]
-                        [ opcode (logand b0 #x7F) ]
-                        [ masked? (logbit? b1 7) ]
-                        [ payload-len-b1 (logand b1 #x7F) ]
-                        ]
-                    (let [[ rest-header-length
-                            (+ (if masked? 4 0)
-                               (case payload-len-b1
-                                 [ ( 127 ) 8 ]
-                                 [ ( 126 ) 2 ]
-                                 [else 0 ]
-                                 ) )
-                            ]
+	    (let/cc return
+              (let loop [[ p 0 ]]
+                (match (u8vector->vector (or (peek-buffer 2) (return p)))
+                  [ #f
+	            (space-buffer! 2)
+	            #f ]
+                  [ #(b0 b1)
+                    (let [[ fin? (logbit? b0 7) ]
+                          [ opcode (logand b0 #x7F) ]
+                          [ masked? (logbit? b1 7) ]
+                          [ payload-len-b1 (logand b1 #x7F) ]
                           ]
-                      ;; TODO: peek-buffer to determine payload-length
-                      ;; TODO: peek-buffer to determine masking-key
-                      ;; TODO: peek-buffer to load payload
-                      ;; TODO: callback and consume buffer
-                      (errorf "not implemented")
-                      (loop (+ p 1))
-                      ) ) ]
-                ) ) ] ) ) ) ) )
+                      (let* [[ rest-header-length
+			       (+ (if masked? 4 0)
+				  (case payload-len-b1
+				    [ ( 127 ) 8 ]
+				    [ ( 126 ) 2 ]
+				    [else 0 ]
+				    ) )
+			       ]
+                        ;; TODO: peek-buffer to determine payload-length
+                        ;; TODO: peek-buffer to determine masking-key
+                        ;; TODO: peek-buffer to load payload
+                        ;; TODO: callback and consume buffer
+			     ]
+                        (errorf "not implemented")
+                        (loop (+ p 1))
+                        ) ) ]
+                  ) ) ) ] ) ) ) ) )
