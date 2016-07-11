@@ -138,6 +138,9 @@
 (define *parse-buffer-size-default* (make-parameter     8000))
 (define *parse-buffer-size-limit*   (make-parameter 16384000))
 
+(define (%decode-integer<-u8vector u8v)
+  (error "not implemented") )
+
 (define (parse-frame$
           :key
           [ on-parsed (errorf "on-parsed required") ]
@@ -199,7 +202,10 @@
           [ _
 	    (let/cc return
               (let loop [[ p 0 ]]
-                (match (u8vector->vector (or (peek-buffer 2) (return p)))
+		(define (peek-buffer* n :optional [skip 0])
+		  (or (peek-buffer n skip)
+		      (return p) ) )
+                (match (u8vector->vector (peek-buffer* 2))
                   [ #f
 	            (space-buffer! 2)
 	            #f ]
@@ -208,17 +214,20 @@
                           [ opcode (logand b0 #x7F) ]
                           [ masked? (logbit? b1 7) ]
                           [ payload-len-b1 (logand b1 #x7F) ]
+			  [ skip 2 ]
                           ]
-                      (let* [[ rest-header-length
-			       (+ (if masked? 4 0)
-				  (case payload-len-b1
-				    [ ( 127 ) 8 ]
-				    [ ( 126 ) 2 ]
-				    [else 0 ]
-				    ) )
-			       ]
-                        ;; TODO: peek-buffer to determine payload-length
-                        ;; TODO: peek-buffer to determine masking-key
+                      (let*-values
+			[[ (skip payload-length)
+			  (case payload-len-b1
+			    [ ( 127 ) (values (+ 4 skip) (%decode-integer<-u8vector (peek-buffer* 4 skip))) ]
+			    [ ( 126 ) (values (+ 2 skip) (%decode-integer<-u8vector (peek-buffer* 2 skip))) ]
+			    [else (values skip payload-len-b1) ]
+			    ) ]
+			 [ (skip masking-key)
+			  (if masked
+			    (values (+ 4 skip) (peek-buffer* 4 skip))
+			    (values skip #f)
+			    ) ]
                         ;; TODO: peek-buffer to load payload
                         ;; TODO: callback and consume buffer
 			     ]
