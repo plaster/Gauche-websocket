@@ -228,10 +228,12 @@
 			    (values (+ 4 skip) (peek-buffer* 4 skip))
 			    (values skip #f)
 			    ) ]
-                        ;; TODO: peek-buffer to load payload
-                        ;; TODO: callback and consume buffer
+			 [ (skip payload-data)
+			  (values (+ payload-length skip)
+				  (peek-buffer* payload-length skip)) ]
 			     ]
-                        (errorf "not implemented")
+                        ;; TODO: callback
+			(consume-buffer! skip)
                         (loop (+ p 1))
                         ) ) ]
                   ) ) ) ] ) ) ) ) )
