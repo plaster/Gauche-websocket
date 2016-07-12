@@ -138,9 +138,20 @@
 (define *parse-buffer-size-default* (make-parameter     8000))
 (define *parse-buffer-size-limit*   (make-parameter 16384000))
 
-(define (%decode-integer<-u8vector u8v)
-  (error "not implemented") )
-
+(define (%decode-u64<-u8vector u8)
+  (logior (ash (u8vector-ref u8 0) 56)
+	  (ash (u8vector-ref u8 1) 48)
+	  (ash (u8vector-ref u8 2) 40)
+	  (ash (u8vector-ref u8 3) 32)
+	  (ash (u8vector-ref u8 4) 24)
+	  (ash (u8vector-ref u8 5) 16)
+	  (ash (u8vector-ref u8 6) 8)
+	  (ash (u8vector-ref u8 7) 0)
+	  ))
+(define (%decode-u16<-u8vector u8)
+  (logior (ash (u8vector-ref u8 0) 8)
+	  (ash (u8vector-ref u8 1) 0)
+	  ))
 (define (parse-frame$
           :key
           [ on-parsed (errorf "on-parsed required") ]
@@ -219,8 +230,8 @@
                       (let*-values
 			[[ (skip payload-length)
 			  (case payload-len-b1
-			    [ ( 127 ) (values (+ 4 skip) (%decode-integer<-u8vector (peek-buffer* 4 skip))) ]
-			    [ ( 126 ) (values (+ 2 skip) (%decode-integer<-u8vector (peek-buffer* 2 skip))) ]
+			    [ ( 127 ) (values (+ 4 skip) (%decode-u64<-u8vector (peek-buffer* 4 skip))) ]
+			    [ ( 126 ) (values (+ 2 skip) (%decode-u16<-u8vector (peek-buffer* 2 skip))) ]
 			    [else (values skip payload-len-b1) ]
 			    ) ]
 			 [ (skip masking-key)
