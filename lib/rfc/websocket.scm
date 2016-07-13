@@ -243,7 +243,11 @@
 			  (values (+ payload-length skip)
 				  (peek-buffer* payload-length skip)) ]
 			     ]
-                        ;; TODO: callback
+			(on-parsed :fin? fin?
+				   :opcode opcode
+				   :masking-key masking-key
+				   :payload-data payload-data
+				   )
 			(consume-buffer! skip)
                         (loop (+ p 1))
                         ) ) ]
