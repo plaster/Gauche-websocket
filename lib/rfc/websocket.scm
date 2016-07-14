@@ -252,3 +252,20 @@
                         (loop (+ p 1))
                         ) ) ]
                   ) ) ) ] ) ) ) ) )
+
+(define (dispatch-frame$
+	  :key
+	  [ on-ping #f ]
+	  [ on-pong #f ]
+	  [ on-binary #f ]
+	  [ on-text #f ]
+	  [ on-close #f ]
+	  )
+  (lambda (:key
+	    [ fin? (errorf "~s required" :fin?) ]
+	    [ opcode (errorf "~s required" :opcode) ]
+	    [ masking-key  (errorf "~s required" :masking-key) ]
+	    [ payload-data (errorf "~s required" :payload-data) ]
+	    )
+    (errorf "not implemented")
+    ) )
