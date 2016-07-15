@@ -3,7 +3,19 @@
   (use gauche.parameter)
   (use srfi-11)
   (use util.match)
-  )
+  (export
+    opcode<-symbol
+    symbol<-opcode
+    opcode-symbol?
+    opcode?
+    assert-opcode
+    opcode-continue
+    opcode-text
+    opcode-binary
+    opcode-connection
+    opcode-ping
+    opcode-pong
+    ) )
 (select-module rfc.websocket)
 
 ;;;; protocol specification: RFC 6455
