@@ -235,7 +235,7 @@
 			    [else (values skip payload-len-b1) ]
 			    ) ]
 			 [ (skip masking-key)
-			  (if masked
+			  (if masked?
 			    (values (+ 4 skip) (peek-buffer* 4 skip))
 			    (values skip #f)
 			    ) ]
