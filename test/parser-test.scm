@@ -17,4 +17,4 @@
             opcode-symbol-list)
   )
 
-(test-end)
+(test-end :exit-on-failure 1)
