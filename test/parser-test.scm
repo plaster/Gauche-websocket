@@ -11,9 +11,9 @@
       [ opcode-symbol-list (map cdr %table-opcode-symbol) ]
       ]
   (for-each assert-opcode opcode-list)
-  (for-each (^o (test-check o ($ opcode<-symbol $ symbol<-opcode o) =))
+  (for-each (^o (test "opcode -> symbol -> opcode" o (^() ($ opcode<-symbol $ symbol<-opcode o)) =))
             opcode-list)
-  (for-each (^s (test-check s ($ symbol<-opcode $ opcode<-symbol s) eq?))
+  (for-each (^s (test "symbol -> opcode -> symbol" s (^() ($ symbol<-opcode $ opcode<-symbol s)) eq?))
             opcode-symbol-list)
   )
 
