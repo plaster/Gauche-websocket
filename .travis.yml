@@ -10,4 +10,8 @@ before_install:
         - docker ps -a
         - ps
         - pwd
-        - docker run nkoguro/gauche gosh -I lib test/parser-test.scm
+        - docker run nkoguro/gauche gosh -V
+        - docker run nkoguro/gauche sh -c 'mkdir /tmp/Gauche-websocket'
+        - |+
+                docker run -v /home/travis/build/plaster/Gauche-websocket:/tmp/Gauche-websocket
+                nkoguro/gauche gosh -I lib test/parser-test.scm
