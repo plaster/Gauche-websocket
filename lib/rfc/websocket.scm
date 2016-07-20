@@ -260,6 +260,7 @@
 	  [ on-binary #f ]
 	  [ on-text #f ]
 	  [ on-close #f ]
+	  [ [ :init-cont-state cont-state ] #f]
 	  )
   (lambda (:key
 	    [ fin? (errorf "~s required" :fin?) ]
@@ -267,5 +268,33 @@
 	    [ masking-key  (errorf "~s required" :masking-key) ]
 	    [ payload-data (errorf "~s required" :payload-data) ]
 	    )
-    (errorf "not implemented")
-    ) )
+    (case (symbol<-opcode opcode)
+      [ ( text binary )
+       => (^ (opcode-symbol)
+	    (and masking-key
+		 (mask-payload! payload-data masking-key) )
+	    (or (and cont-state (errorf "continuation frame expected"))
+		(if fin?
+		  (case opcode-symbol
+		    [ (text) (and on-text ($ on-text $ u8vector->string payload-data)) ]
+		    [ (binary) (and on-binary (on-binary payload-data)) ]
+		    [ else
+		      (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ] )
+		  (set! cont-state `(,payload-data ,opcode-symbol))
+		  ) ) )
+       ]
+      [ ( continue )
+       (errorf "not implemented")
+       ]
+      [ ( ping )
+       (errorf "not implemented")
+       ]
+      [ ( pong )
+       (errorf "not implemented")
+       ]
+      [ ( connection )
+       (errorf "not implemented")
+       ]
+      [ else => (^ (opcode-symbol)
+		  (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ) ]
+      ) ) )
