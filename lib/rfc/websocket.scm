@@ -12,7 +12,7 @@
     opcode-continue
     opcode-text
     opcode-binary
-    opcode-connection
+    opcode-close
     opcode-ping
     opcode-pong
     ) )
@@ -26,7 +26,7 @@
     ( #x1 . text )
     ( #x2 . binary )
     ;; %x3-7 are reserved for further non-control frames
-    ( #x8 . connection )
+    ( #x8 . close )
     ( #x9 . ping )
     ( #xA . pong )
     ;; %xB-F are reserved for further control frames
@@ -69,7 +69,7 @@
 (define opcode-continue      (opcode<-symbol 'continue      ))
 (define opcode-text          (opcode<-symbol 'text          ))
 (define opcode-binary        (opcode<-symbol 'binary        ))
-(define opcode-connection    (opcode<-symbol 'connection    ))
+(define opcode-close         (opcode<-symbol 'close         ))
 (define opcode-ping          (opcode<-symbol 'ping          ))
 (define opcode-pong          (opcode<-symbol 'pong          ))
 
@@ -310,7 +310,7 @@
       [ ( pong )
        (on-pong)
        ]
-      [ ( connection )
+      [ ( close )
        (errorf "not implemented")
        ]
       [ else => (^ (opcode-symbol)
