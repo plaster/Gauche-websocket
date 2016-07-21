@@ -314,6 +314,9 @@
       [ ( close )
        (on-close)
        ]
+      [ ( #f )
+       (errorf "unknown opcode: ~s" opcode)
+       ]
       [ else => (^ (opcode-symbol)
 		  (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ) ]
       ) ) )
