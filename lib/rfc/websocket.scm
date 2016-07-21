@@ -268,7 +268,7 @@
 	    [ masking-key  (errorf "~s required" :masking-key) ]
 	    [ payload-data (errorf "~s required" :payload-data) ]
 	    )
-    (define (flusher)
+    (define (flush)
       (receive (opcode-symbol plain-payload-data)
         (match cont-state
 	       [ (opcode-symbol plain-payload-data)
@@ -293,7 +293,7 @@
 	    (and masking-key
 		 (mask-payload! payload-data masking-key) )
 	    (set! cont-state `(,opcode-symbol ,payload-data))
-	    (and fin? (flusher))
+	    (and fin? (flush))
 	    ) ]
       [ ( continue )
        (or cont-state (errorf "continuation frame is NOT expected"))
@@ -303,7 +303,7 @@
 	 [ (opcode-symbol . r-plain-payload-data-list)
 	  (set! cont-state `(,opcode-symbol . (,payload-data . ,r-plain-payload-data-list)))
 	  ] )
-       (and fin? (flusher))
+       (and fin? (flush))
        ]
       [ ( ping )
        (on-ping)
