@@ -267,33 +267,42 @@
 	    [ opcode (errorf "~s required" :opcode) ]
 	    [ masking-key  (errorf "~s required" :masking-key) ]
 	    [ payload-data (errorf "~s required" :payload-data) ]
+	    [ flusher (^ ()
+			 (receive (opcode-symbol plain-payload-data)
+			   (match cont-state
+			     [ (opcode-symbol plain-payload-data)
+			      (values opcode-symbol plain-payload-data) ]
+			     [ (opcode-symbol . r-plain-payload-data-list)
+			      ($ values opcode-symbol
+				 $ u8vector-append
+				 $* reverse r-plain-payload-data-list) ]
+			     )
+			   (case opcode-symbol
+			     [ (text) (and on-text ($ on-text $ u8vector->string plain-payload-data)) ]
+			     [ (binary) (and on-binary (on-binary plain-payload-data)) ]
+			     [ else
+			       (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ] )
+			   (set! cont-state #f)
+			   ) ) ]
 	    )
     (case (symbol<-opcode opcode)
       [ ( text binary )
        => (^ (opcode-symbol)
+	    (and cont-state (errorf "continuation frame expected"))
 	    (and masking-key
 		 (mask-payload! payload-data masking-key) )
-	    (or (and cont-state (errorf "continuation frame expected"))
-		(if fin?
-		  (begin
-		    (case opcode-symbol
-		      [ (text) (and on-text ($ on-text $ u8vector->string payload-data)) ]
-		      [ (binary) (and on-binary (on-binary payload-data)) ]
-		      [ else
-			(errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ] )
-		    (set! cont-state #f)
-		    )
-		  (set! cont-state `(,payload-data ,opcode-symbol))
-		  ) ) )
-       ]
+	    (set! cont-state `(,opcode-symbol ,payload-data))
+	    (and fin? (flusher))
+	    ) ]
       [ ( continue )
        (or cont-state (errorf "continuation frame is NOT expected"))
        (and masking-key
 	    (mask-payload! payload-data masking-key) )
-       (if fin?
-	 (errorf "not implemented")
-	 (errorf "not implemented")
-	 )
+       (match cont-state
+	 [ (opcode-symbol . r-plain-payload-data-list)
+	  (set! cont-state `(,opcode-symbol . (,payload-data . ,r-plain-payload-data-list)))
+	  ] )
+       (and fin? (flusher))
        ]
       [ ( ping )
        (errorf "not implemented")
