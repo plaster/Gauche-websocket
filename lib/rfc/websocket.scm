@@ -275,15 +275,21 @@
 		 (mask-payload! payload-data masking-key) )
 	    (or (and cont-state (errorf "continuation frame expected"))
 		(if fin?
-		  (case opcode-symbol
-		    [ (text) (and on-text ($ on-text $ u8vector->string payload-data)) ]
-		    [ (binary) (and on-binary (on-binary payload-data)) ]
-		    [ else
-		      (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ] )
+		  (begin
+		    (case opcode-symbol
+		      [ (text) (and on-text ($ on-text $ u8vector->string payload-data)) ]
+		      [ (binary) (and on-binary (on-binary payload-data)) ]
+		      [ else
+			(errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ] )
+		    (set! cont-state #f)
+		    )
 		  (set! cont-state `(,payload-data ,opcode-symbol))
 		  ) ) )
        ]
       [ ( continue )
+       (or cont-state (errorf "continuation frame is NOT expected"))
+       (and masking-key
+	    (mask-payload! payload-data masking-key) )
        (if fin?
 	 (errorf "not implemented")
 	 (errorf "not implemented")
