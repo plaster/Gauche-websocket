@@ -305,10 +305,10 @@
        (and fin? (flusher))
        ]
       [ ( ping )
-       (errorf "not implemented")
+       (on-ping)
        ]
       [ ( pong )
-       (errorf "not implemented")
+       (on-pong)
        ]
       [ ( connection )
        (errorf "not implemented")
