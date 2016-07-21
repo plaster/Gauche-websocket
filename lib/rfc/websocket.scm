@@ -284,7 +284,10 @@
 		  ) ) )
        ]
       [ ( continue )
-       (errorf "not implemented")
+       (if fin?
+	 (errorf "not implemented")
+	 (errorf "not implemented")
+	 )
        ]
       [ ( ping )
        (errorf "not implemented")
