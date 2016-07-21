@@ -312,7 +312,7 @@
        (on-pong)
        ]
       [ ( close )
-       (errorf "not implemented")
+       (on-close)
        ]
       [ else => (^ (opcode-symbol)
 		  (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ) ]
