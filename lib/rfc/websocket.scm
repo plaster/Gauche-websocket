@@ -15,6 +15,9 @@
     opcode-close
     opcode-ping
     opcode-pong
+
+    parse-frame$
+    dispatch-frame$
     ) )
 (select-module rfc.websocket)
 
