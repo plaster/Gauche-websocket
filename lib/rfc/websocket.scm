@@ -18,6 +18,9 @@
 
     parse-frame$
     dispatch-frame$
+
+    dispatch-parsed-frame$$
+    dispatch-parsed-frame$
     ) )
 (select-module rfc.websocket)
 
@@ -325,3 +328,10 @@
       [ else => (^ (opcode-symbol)
 		  (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ) ]
       ) ) )
+
+(define ((dispatch-parsed-frame$$ . parse-frame$-args) . dispatch-frame$-args)
+  (apply parse-frame$
+	 :on-parsed (apply dispatch-frame$ dispatch-frame$-args)
+	 parse-frame$-args))
+
+(define dispatch-parsed-frame$ (dispatch-parsed-frame$$))
