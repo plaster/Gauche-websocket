@@ -16,6 +16,8 @@
     opcode-ping
     opcode-pong
 
+    build-frame
+
     parse-frame$
     dispatch-frame$
 
