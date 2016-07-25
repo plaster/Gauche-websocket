@@ -19,6 +19,14 @@
             opcode-symbol-list)
   )
 
+(test "build-frame text"
+      '#u8(#x81 4 104 111 103 101)
+      (pa$ build-frame
+	   :fin? #t
+	   :opcode opcode-text
+	   :payload-data (string->u8vector "hoge")))
+
+
 (define (choppend-input-port sz in)
   (make <buffered-input-port>
 	:fill (^ (buf)

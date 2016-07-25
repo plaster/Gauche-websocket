@@ -116,7 +116,7 @@
     (let1 payload-len (u8vector-length payload-data)
       (cond
         [(<= payload-len 125)
-         (values 125 '#u8()) ]
+         (values payload-len '#u8()) ]
         [(<= payload-len #xFFFF)
          (values 126
                  (u8vector (logand #xFF (ash payload-len -8))
