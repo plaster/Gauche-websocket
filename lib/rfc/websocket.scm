@@ -291,12 +291,12 @@
 		   $ u8vector-append
 		   $* reverse r-plain-payload-data-list) ]
 	       )
+	(set! cont-state #f)
 	(case opcode-symbol
 	  [ (text) (and on-text ($ on-text $ u8vector->string plain-payload-data)) ]
 	  [ (binary) (and on-binary (on-binary plain-payload-data)) ]
 	  [ else
 	    (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ] )
-	(set! cont-state #f)
 	) )
 
     (case (symbol<-opcode opcode)
