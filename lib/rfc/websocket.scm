@@ -18,6 +18,9 @@
 
     build-frame
 
+    *parse-buffer-size-default*
+    *parse-buffer-size-limit*
+
     parse-frame$
     dispatch-frame$
 
