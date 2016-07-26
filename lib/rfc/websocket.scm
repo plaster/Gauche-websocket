@@ -151,18 +151,18 @@
 
 (define (%decode-u64<-u8vector u8)
   (logior (ash (u8vector-ref u8 0) 56)
-	  (ash (u8vector-ref u8 1) 48)
-	  (ash (u8vector-ref u8 2) 40)
-	  (ash (u8vector-ref u8 3) 32)
-	  (ash (u8vector-ref u8 4) 24)
-	  (ash (u8vector-ref u8 5) 16)
-	  (ash (u8vector-ref u8 6) 8)
-	  (ash (u8vector-ref u8 7) 0)
-	  ))
+          (ash (u8vector-ref u8 1) 48)
+          (ash (u8vector-ref u8 2) 40)
+          (ash (u8vector-ref u8 3) 32)
+          (ash (u8vector-ref u8 4) 24)
+          (ash (u8vector-ref u8 5) 16)
+          (ash (u8vector-ref u8 6) 8)
+          (ash (u8vector-ref u8 7) 0)
+          ))
 (define (%decode-u16<-u8vector u8)
   (logior (ash (u8vector-ref u8 0) 8)
-	  (ash (u8vector-ref u8 1) 0)
-	  ))
+          (ash (u8vector-ref u8 1) 0)
+          ))
 
 (define (parse-frame$
           :key
@@ -195,13 +195,13 @@
                    (u8vector-copy! new-b 0 b 0 filled-bytes)
                    (set! b new-b)
                    ) ) ) ]
-	   [ space-buffer!
-	     (lambda (n)
-	       (if (> n (- (u8vector-length b)
-			   (- filled-bytes parsed-bytes)))
-		 (extend-buffer!)
-		 (reset-buffer!)
-		 ) ) ]
+           [ space-buffer!
+             (lambda (n)
+               (if (> n (- (u8vector-length b)
+                           (- filled-bytes parsed-bytes)))
+                 (extend-buffer!)
+                 (reset-buffer!)
+                 ) ) ]
            [ recv-buffer!
              (lambda (in)
                (let1 r (read-uvector! b in filled-bytes)
@@ -210,7 +210,7 @@
                    [ (= 0 r)         r ]
                    [else
                      (inc! filled-bytes r)
-		     r
+                     r
                      ] ) ) ) ]
            [ consume-buffer!
              (lambda (n)
@@ -223,101 +223,101 @@
       (lambda (in)
         (match (recv-buffer! in)
           [ (and (? eof-object? ) r) r ]
-	  [ 0 0 ]
+          [ 0 0 ]
           [ _
-	    (let/cc return
+            (let/cc return
               (let loop [[ p 0 ]]
-		(define (peek-buffer* n :optional [skip 0])
-		  (or (peek-buffer n skip)
-		      (return p) ) )
+                (define (peek-buffer* n :optional [skip 0])
+                  (or (peek-buffer n skip)
+                      (return p) ) )
                 (match (u8vector->vector (peek-buffer* 2))
                   [ #f
-	            (space-buffer! 2)
-	            #f ]
+                    (space-buffer! 2)
+                    #f ]
                   [ #(b0 b1)
                     (let [[ fin? (logbit? b0 7) ]
                           [ opcode (logand b0 #x7F) ]
                           [ masked? (logbit? b1 7) ]
                           [ payload-len-b1 (logand b1 #x7F) ]
-			  [ skip 2 ]
+                          [ skip 2 ]
                           ]
                       (let*-values
-			[[ (skip payload-length)
-			  (case payload-len-b1
-			    [ ( 127 ) (values (+ 4 skip) (%decode-u64<-u8vector (peek-buffer* 4 skip))) ]
-			    ;; TODO: assert that payload-length <= #x7FFFFFFFFFFFFFFF
-			    [ ( 126 ) (values (+ 2 skip) (%decode-u16<-u8vector (peek-buffer* 2 skip))) ]
-			    [else (values skip payload-len-b1) ]
-			    ) ]
-			 [ (skip masking-key)
-			  (if masked?
-			    (values (+ 4 skip) (peek-buffer* 4 skip))
-			    (values skip #f)
-			    ) ]
-			 [ (skip payload-data)
-			  (values (+ payload-length skip)
-				  (peek-buffer* payload-length skip)) ]
-			     ]
-			(on-parsed :fin? fin?
-				   :opcode opcode
-				   :masking-key masking-key
-				   :payload-data payload-data
-				   )
-			(consume-buffer! skip)
+                        [[ (skip payload-length)
+                          (case payload-len-b1
+                            [ ( 127 ) (values (+ 4 skip) (%decode-u64<-u8vector (peek-buffer* 4 skip))) ]
+                            ;; TODO: assert that payload-length <= #x7FFFFFFFFFFFFFFF
+                            [ ( 126 ) (values (+ 2 skip) (%decode-u16<-u8vector (peek-buffer* 2 skip))) ]
+                            [else (values skip payload-len-b1) ]
+                            ) ]
+                         [ (skip masking-key)
+                          (if masked?
+                            (values (+ 4 skip) (peek-buffer* 4 skip))
+                            (values skip #f)
+                            ) ]
+                         [ (skip payload-data)
+                          (values (+ payload-length skip)
+                                  (peek-buffer* payload-length skip)) ]
+                             ]
+                        (on-parsed :fin? fin?
+                                   :opcode opcode
+                                   :masking-key masking-key
+                                   :payload-data payload-data
+                                   )
+                        (consume-buffer! skip)
                         (loop (+ p 1))
                         ) ) ]
                   ) ) ) ] ) ) ) ) )
 
 (define (dispatch-frame$
-	  :key
-	  [ on-ping #f ]
-	  [ on-pong #f ]
-	  [ on-binary #f ]
-	  [ on-text #f ]
-	  [ on-close #f ]
-	  [ [ :init-cont-state cont-state ] #f]
-	  )
+          :key
+          [ on-ping #f ]
+          [ on-pong #f ]
+          [ on-binary #f ]
+          [ on-text #f ]
+          [ on-close #f ]
+          [ [ :init-cont-state cont-state ] #f]
+          )
   (lambda (:key
-	    [ fin? (errorf "~s required" :fin?) ]
-	    [ opcode (errorf "~s required" :opcode) ]
-	    [ masking-key  (errorf "~s required" :masking-key) ]
-	    [ payload-data (errorf "~s required" :payload-data) ]
-	    )
+            [ fin? (errorf "~s required" :fin?) ]
+            [ opcode (errorf "~s required" :opcode) ]
+            [ masking-key  (errorf "~s required" :masking-key) ]
+            [ payload-data (errorf "~s required" :payload-data) ]
+            )
     (define (flush)
       (receive (opcode-symbol plain-payload-data)
         (match cont-state
-	       [ (opcode-symbol plain-payload-data)
-		(values opcode-symbol plain-payload-data) ]
-	       [ (opcode-symbol . r-plain-payload-data-list)
-		($ values opcode-symbol
-		   $ u8vector-append
-		   $* reverse r-plain-payload-data-list) ]
-	       )
-	(set! cont-state #f)
-	(case opcode-symbol
-	  [ (text) (and on-text ($ on-text $ u8vector->string plain-payload-data)) ]
-	  [ (binary) (and on-binary (on-binary plain-payload-data)) ]
-	  [ else
-	    (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ] )
-	) )
+               [ (opcode-symbol plain-payload-data)
+                (values opcode-symbol plain-payload-data) ]
+               [ (opcode-symbol . r-plain-payload-data-list)
+                ($ values opcode-symbol
+                   $ u8vector-append
+                   $* reverse r-plain-payload-data-list) ]
+               )
+        (set! cont-state #f)
+        (case opcode-symbol
+          [ (text) (and on-text ($ on-text $ u8vector->string plain-payload-data)) ]
+          [ (binary) (and on-binary (on-binary plain-payload-data)) ]
+          [ else
+            (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ] )
+        ) )
 
     (case (symbol<-opcode opcode)
       [ ( text binary )
        => (^ (opcode-symbol)
-	    (and cont-state (errorf "continuation frame expected"))
-	    (and masking-key
-		 (mask-payload! payload-data masking-key) )
-	    (set! cont-state `(,opcode-symbol ,payload-data))
-	    (and fin? (flush))
-	    ) ]
+            (and cont-state (errorf "continuation frame expected"))
+            (and masking-key
+                 (mask-payload! payload-data masking-key) )
+            (set! cont-state `(,opcode-symbol ,payload-data))
+            (and fin? (flush))
+            ) ]
       [ ( continue )
        (or cont-state (errorf "continuation frame is NOT expected"))
        (and masking-key
-	    (mask-payload! payload-data masking-key) )
+            (mask-payload! payload-data masking-key) )
        (match cont-state
-	 [ (opcode-symbol . r-plain-payload-data-list)
-	  (set! cont-state `(,opcode-symbol . (,payload-data . ,r-plain-payload-data-list)))
-	  ] )
+         [ (opcode-symbol . r-plain-payload-data-list)
+          (set! cont-state `(,opcode-symbol . (,payload-data . ,r-plain-payload-data-list)))
+          ] )
        (and fin? (flush))
        ]
       [ ( ping )
@@ -333,12 +333,14 @@
        (errorf "unknown opcode: ~s" opcode)
        ]
       [ else => (^ (opcode-symbol)
-		  (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ) ]
+                  (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ) ]
       ) ) )
 
 (define ((dispatch-parsed-frame$$ . parse-frame$-args) . dispatch-frame$-args)
   (apply parse-frame$
-	 :on-parsed (apply dispatch-frame$ dispatch-frame$-args)
-	 parse-frame$-args))
+         :on-parsed (apply dispatch-frame$ dispatch-frame$-args)
+         parse-frame$-args))
 
 (define dispatch-parsed-frame$ (dispatch-parsed-frame$$))
+
+;; vi:se expandtab:
