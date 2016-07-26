@@ -43,7 +43,7 @@
 (define (test-text . input-text-list)
   (let* [[ output-text-list '() ]
          [ parse (dispatch-parsed-frame$
-                   :on-text (cut push! output-text <> )
+                   :on-text (cut push! output-text-list <> )
                    ) ]
          [ in
            ($ open-input-uvector
@@ -69,7 +69,7 @@
 (define (test-chopped-text chop-size . input-text-list)
   (let* [[ output-text-list '() ]
          [ parse (dispatch-parsed-frame$
-                   :on-text (cut push! output-text <> )
+                   :on-text (cut push! output-text-list <> )
                    ) ]
          [ in
            ($ open-chopped-input-uvector chop-size
