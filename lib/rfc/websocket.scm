@@ -224,12 +224,12 @@
         (match (recv-buffer! in)
           [ (and (? eof-object? ) r) r ]
           [ 0 0 ]
-          [ _
+          [ r
             (let/cc return
               (let loop [[ p 0 ]]
                 (define (peek-buffer* n :optional [skip 0])
                   (or (peek-buffer n skip)
-                      (return p) ) )
+                      (return `#(,r ,p)) ) )
                 (match (u8vector->vector (peek-buffer* 2))
                   [ #f
                     (space-buffer! 2)
