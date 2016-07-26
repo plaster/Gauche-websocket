@@ -226,10 +226,11 @@
           [ 0 0 ]
           [ r
             (let/cc return
-              (let loop [[ p 0 ]]
+              (let loop [[ p 0 ]
+                         [ s 0 ]]
                 (define (peek-buffer* n :optional [skip 0])
                   (or (peek-buffer n skip)
-                      (return `#(,r ,p)) ) )
+                      (return `#(,p ,r ,s)) ) )
                 (match (u8vector->vector (peek-buffer* 2))
                   [ #f
                     (space-buffer! 2)
@@ -264,7 +265,8 @@
                                    :payload-data payload-data
                                    )
                         (consume-buffer! skip)
-                        (loop (+ p 1))
+                        (loop (+ p 1)
+                              (+ s skip) )
                         ) ) ]
                   ) ) ) ] ) ) ) ) )
 
