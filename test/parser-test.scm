@@ -65,6 +65,7 @@
           equal?) ) )
 
 (test-text "hoge")
+(test-text "hoge" "piyo" "pospos")
 
 (define (test-chopped-text chop-size . input-text-list)
   (let* [[ output-text-list '() ]
