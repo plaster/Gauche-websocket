@@ -210,6 +210,7 @@
                    [ (= 0 r)         r ]
                    [else
                      (inc! filled-bytes r)
+		     r
                      ] ) ) ) ]
            [ consume-buffer!
              (lambda (n)
@@ -222,6 +223,7 @@
       (lambda (in)
         (match (recv-buffer! in)
           [ (and (? eof-object? ) r) r ]
+	  [ 0 0 ]
           [ _
 	    (let/cc return
               (let loop [[ p 0 ]]
