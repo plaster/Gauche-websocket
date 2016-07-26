@@ -236,9 +236,9 @@
                     (space-buffer! 2)
                     #f ]
                   [ #(b0 b1)
-                    (let [[ fin? (logbit? b0 7) ]
+                    (let [[ fin? (logbit? 7 b0) ]
                           [ opcode (logand b0 #x7F) ]
-                          [ masked? (logbit? b1 7) ]
+                          [ masked? (logbit? 7 b1) ]
                           [ payload-len-b1 (logand b1 #x7F) ]
                           [ skip 2 ]
                           ]
