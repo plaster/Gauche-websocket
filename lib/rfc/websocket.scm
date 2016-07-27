@@ -230,11 +230,10 @@
                          [ s 0 ]]
                 (define (peek-buffer* n :optional [skip 0])
                   (or (peek-buffer n skip)
-                      (return `#(,p ,r ,s)) ) )
+                      (begin
+                        (space-buffer! n)
+                        (return `#(,p ,r ,s)) ) ) )
                 (match (u8vector->vector (peek-buffer* 2))
-                  [ #f
-                    (space-buffer! 2)
-                    #f ]
                   [ #(b0 b1)
                     (let [[ fin? (logbit? 7 b0) ]
                           [ opcode (logand b0 #x7F) ]
