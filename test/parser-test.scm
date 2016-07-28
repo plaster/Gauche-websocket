@@ -137,6 +137,9 @@
 (for-each (cut test-chopped-text <> "hoge")
           (iota 7 1))
 
+;; TODO: continue frame
+;; TODO: large frame
+
 (test-end :exit-on-failure 1)
 
 ;; vi:se expandtab:
