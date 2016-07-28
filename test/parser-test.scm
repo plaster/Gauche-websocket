@@ -57,12 +57,36 @@
           equal?)
     ))
 
+(define (test-chopped-frames chop-size . frame-spec-list)
+  (let* [[ output-frame-list '() ]
+         [ parse
+           (parse-frame$ :on-parsed (.$ (cut push! output-frame-list <>) list))
+           ]
+         [ input-frame-list
+           (map (apply$ build-frame) frame-spec-list)
+           ]
+         [ in (open-chopped-input-uvector chop-size (apply u8vector-append input-frame-list)) ]
+         ]
+    (port-for-each values (pa$ parse in))
+    (test #`"build-frame -> parse-frame$ chop ,chop-size"
+          frame-spec-list
+          (cut reverse output-frame-list)
+          equal?)
+    ))
+
 (test-frames `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
 (test-frames `(:fin? #f :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
 (test-frames `(:fin? #f :opcode ,opcode-continue :masking-key #f :payload-data #u8( 5 4 3 2 )))
 (test-frames `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 ))
              `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 6 7 8 ))
              )
+
+(test-chopped-frames 1
+  `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
+(test-chopped-frames 2
+  `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
+(test-chopped-frames 10
+  `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
 
 (define (test-text . input-text-list)
   (let* [[ output-text-list '() ]
