@@ -31,7 +31,6 @@
   (make <buffered-input-port>
         :fill (^ (buf)
                 ($ read-uvector! buf in 0
-                   $ + -1
                    $ min sz
                    $ u8vector-length buf) ) ) )
 
