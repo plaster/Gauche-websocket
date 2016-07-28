@@ -134,7 +134,8 @@
           (cut reverse output-text-list)
           equal?) ) )
 
-(test-chopped-text 100 "hoge")
+(for-each (cut test-chopped-text <> "hoge")
+          (iota 7 1))
 
 (test-end :exit-on-failure 1)
 
