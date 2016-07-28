@@ -40,6 +40,30 @@
      $ open-input-uvector uv
      ) )
 
+(define (test-frames . frame-spec-list)
+  (let* [[ output-frame-list '() ]
+         [ parse
+           (parse-frame$ :on-parsed (.$ (cut push! output-frame-list <>) list))
+           ]
+         [ input-frame-list
+           (map (apply$ build-frame) frame-spec-list)
+           ]
+         [ in (open-input-uvector (apply u8vector-append input-frame-list)) ]
+         ]
+    (port-for-each values (pa$ parse in))
+    (test "build-frame -> parse-frame$"
+          frame-spec-list
+          (^ () output-frame-list)
+          equal?)
+    ))
+
+(test-frames `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
+(test-frames `(:fin? #f :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
+(test-frames `(:fin? #f :opcode ,opcode-continue :masking-key #f :payload-data #u8( 5 4 3 2 )))
+(test-frames `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 ))
+             `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 6 7 8 ))
+             )
+
 (define (test-text . input-text-list)
   (let* [[ output-text-list '() ]
          [ parse (dispatch-parsed-frame$
