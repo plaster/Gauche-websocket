@@ -53,7 +53,7 @@
     (port-for-each values (pa$ parse in))
     (test "build-frame -> parse-frame$"
           frame-spec-list
-          (^ () output-frame-list)
+          (cut reverse output-frame-list)
           equal?)
     ))
 
@@ -80,12 +80,10 @@
               input-text-list
               ) ]
          ]
+    (port-for-each values (pa$ parse in))
     (test "build-frame -> dispatch-parsed-frame$ text"
           input-text-list
-          (^ ()
-             (port-for-each values (pa$ parse in))
-             output-text-list
-             )
+          (cut reverse output-text-list)
           equal?) ) )
 
 (test-text "hoge")
@@ -107,12 +105,10 @@
               input-text-list
               ) ]
          ]
+    (port-for-each values (pa$ parse in))
     (test "build-frame -> dispatch-parsed-frame$ text"
           input-text-list
-          (^ ()
-             (port-for-each values (pa$ parse in))
-             output-text-list
-             )
+          (cut reverse output-text-list)
           equal?) ) )
 
 (test-chopped-text 100 "hoge")

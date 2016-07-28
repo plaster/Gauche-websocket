@@ -217,8 +217,10 @@
                (inc! parsed-bytes n) ) ]
            [ peek-buffer
              (lambda (n :optional [skip 0])
-               (and (<= (+ skip n) (- filled-bytes parsed-bytes))
-                    (u8vector-copy b skip (+ skip n)) ) ) ]
+               (and (<= (+ parsed-bytes skip n) filled-bytes)
+                    (u8vector-copy b
+                                   (+ parsed-bytes skip)
+                                   (+ parsed-bytes skip n) ) ) ) ]
            ]
       (lambda (in)
         (match (recv-buffer! in)
