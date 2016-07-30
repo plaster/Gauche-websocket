@@ -87,6 +87,13 @@
 (test-chopped-frames 10
   `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
 
+(test-frames
+  `(:fin? #t :opcode ,opcode-binary :masking-key #f
+          :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 1000 3 7)))
+(test-chopped-frames 10
+  `(:fin? #t :opcode ,opcode-binary :masking-key #f
+          :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 1000 3 7)))
+
 (define (test-text . input-text-list)
   (let* [[ output-text-list '() ]
          [ parse (dispatch-parsed-frame$
