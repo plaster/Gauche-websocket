@@ -186,7 +186,7 @@
                  ) ) ]
            [ extend-buffer!
              (lambda ()
-               (let1 new-size ($ min buffer-size-limit $ * 2 $ buffer-size)
+               (let1 new-size ($ min buffer-size-limit $ * 2 buffer-size)
                  (or (> new-size buffer-size)
                      (errorf "buffer limit exceeded")
                      )
