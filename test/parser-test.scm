@@ -96,6 +96,9 @@
 (test-chopped-frames 10
   `(:fin? #t :opcode ,opcode-binary :masking-key #f
           :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 10000 3 7)))
+(test-frames
+  `(:fin? #t :opcode ,opcode-binary :masking-key #f
+          :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 30000 3 7)))
 
 (define (test-text . input-text-list)
   (let* [[ output-text-list '() ]
