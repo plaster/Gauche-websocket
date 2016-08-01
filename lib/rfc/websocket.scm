@@ -172,9 +172,8 @@
           )
   (let [[ filled-bytes 0 ]
         [ parsed-bytes 0 ]
-        [ buffer-size buffer-size-default ]
         ]
-    (let* [[ b (make-u8vector buffer-size) ]
+    (let* [[ b (make-u8vector buffer-size-default) ]
            [ reset-buffer!
              (lambda ()
                (when (> parsed-bytes 0)
@@ -185,22 +184,24 @@
                  (set! parsed-bytes 0)
                  ) ) ]
            [ extend-buffer!
-             (lambda ()
-               (let1 new-size ($ min buffer-size-limit $ * 2 buffer-size)
-                 (or (> new-size buffer-size)
-                     (errorf "buffer limit exceeded")
-                     )
-                 (reset-buffer!)
+             (lambda (new-buffer-size-min)
+               (or (zero? parsed-bytes)
+                   (errorf "internal error: call reset-buffer! first.") )
+               (let1 new-size ($ min buffer-size-limit
+                                 $ max new-buffer-size-min
+                                 $ * 2 $ u8vector-length b)
+                 (or ($ > new-size $ u8vector-length b)
+                     (errorf "buffer limit exceeded") )
                  (let1 new-b (make-u8vector new-size)
                    (u8vector-copy! new-b 0 b 0 filled-bytes)
                    (set! b new-b)
                    ) ) ) ]
            [ space-buffer!
              (lambda (n)
-               (if (> n (- (u8vector-length b)
-                           (- filled-bytes parsed-bytes)))
-                 (extend-buffer!)
-                 (reset-buffer!)
+               (or (zero? parsed-bytes)
+                   (errorf "internal error: call reset-buffer! first.") )
+               (when ($ > n $ u8vector-length b)
+                 (extend-buffer! n)
                  ) ) ]
            [ recv-buffer!
              (lambda (in)
@@ -233,7 +234,8 @@
                 (define (peek-buffer* n :optional [skip 0])
                   (or (peek-buffer n skip)
                       (begin
-                        (space-buffer! n)
+                        (reset-buffer!)
+                        (space-buffer! (+ n skip))
                         (return `#(,p ,r ,s)) ) ) )
                 (match (u8vector->vector (peek-buffer* 2))
                   [ #(b0 b1)
