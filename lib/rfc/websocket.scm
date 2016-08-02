@@ -248,7 +248,7 @@
                       (let*-values
                         [[ (skip payload-length)
                           (case payload-len-b1
-                            [ ( 127 ) (values (+ 4 skip) (%decode-u64<-u8vector (peek-buffer* 4 skip))) ]
+                            [ ( 127 ) (values (+ 8 skip) (%decode-u64<-u8vector (peek-buffer* 8 skip))) ]
                             ;; TODO: assert that payload-length <= #x7FFFFFFFFFFFFFFF
                             [ ( 126 ) (values (+ 2 skip) (%decode-u16<-u8vector (peek-buffer* 2 skip))) ]
                             [else (values skip payload-len-b1) ]
