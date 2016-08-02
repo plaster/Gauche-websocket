@@ -1,6 +1,8 @@
 (define-module rfc.websocket
   (use gauche.uvector)
   (use gauche.parameter)
+  (use gauche.generator)
+  (use data.random :prefix rand:)
   (use srfi-11)
   (use util.match)
   (export
@@ -16,6 +18,7 @@
     opcode-ping
     opcode-pong
 
+    make-masking-key
     build-frame
 
     *parse-buffer-size-default*
@@ -101,6 +104,9 @@
 (define (mask-payload payload-data masking-key)
   (mask-payload! (u8vector-copy payload-data) masking-key))
 
+(define (make-masking-key)
+  ($ list->u8vector $ generator->list rand:uint8s 4))
+
 (define (build-frame
           :key
           [ fin? #f ]
@@ -110,7 +116,17 @@
           )
   (assert-opcode opcode)
 
-  (and masking-key (assert-masking-key masking-key))
+  (match masking-key
+    [ #f #f ]
+    [ #t
+      (set! masking-key (make-masking-key))
+      ]
+    [ (? u8vector?)
+     (or ($ = 4 $ u8vector-length masking-key)
+         (errorf "masking-key length must be 4.") )
+     masking-key
+     ]
+    )
 
   (receive (payload-len-b1 payload-len-bs)
     (let1 payload-len (u8vector-length payload-data)
@@ -169,6 +185,7 @@
           [ on-parsed (errorf "on-parsed required") ]
           [ buffer-size-default (*parse-buffer-size-default*) ]
           [ buffer-size-limit (*parse-buffer-size-limit*) ]
+          [ unmask-on-parsed #t ]
           )
   (let [[ filled-bytes 0 ]
         [ parsed-bytes 0 ]
@@ -261,7 +278,11 @@
                          [ (skip payload-data)
                           (values (+ payload-length skip)
                                   (peek-buffer* payload-length skip)) ]
-                             ]
+                         [ (masking-key payload-data)
+                          (if (and unmask-on-parsed masking-key)
+                            (values #t (mask-payload! payload-data masking-key))
+                            (values masking-key payload-data) ) ]
+                         ]
                         (on-parsed :fin? fin?
                                    :opcode opcode
                                    :masking-key masking-key
@@ -306,19 +327,18 @@
             (errorf "internal error: unknown opcode-symbol: ~s" opcode-symbol) ] )
         ) )
 
+    (or (memq masking-key '(#t #f))
+        (errorf "masking-key must be resolved, but got: ~s"))
+
     (case (symbol<-opcode opcode)
       [ ( text binary )
        => (^ (opcode-symbol)
             (and cont-state (errorf "continuation frame expected"))
-            (and masking-key
-                 (mask-payload! payload-data masking-key) )
             (set! cont-state `(,opcode-symbol ,payload-data))
             (and fin? (flush))
             ) ]
       [ ( continue )
        (or cont-state (errorf "continuation frame is NOT expected"))
-       (and masking-key
-            (mask-payload! payload-data masking-key) )
        (match cont-state
          [ (opcode-symbol . r-plain-payload-data-list)
           (set! cont-state `(,opcode-symbol . (,payload-data . ,r-plain-payload-data-list)))

@@ -79,6 +79,12 @@
 (test-frames `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 ))
              `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 6 7 8 ))
              )
+(test-frames `(:fin? #t :opcode ,opcode-binary :masking-key #t :payload-data #u8( 5 4 3 2 )))
+(test-frames `(:fin? #f :opcode ,opcode-binary :masking-key #t :payload-data #u8( 5 4 3 2 )))
+(test-frames `(:fin? #f :opcode ,opcode-continue :masking-key #t :payload-data #u8( 5 4 3 2 )))
+(test-frames `(:fin? #t :opcode ,opcode-binary :masking-key #t :payload-data #u8( 5 4 3 2 ))
+             `(:fin? #t :opcode ,opcode-binary :masking-key #t :payload-data #u8( 5 6 7 8 ))
+             )
 
 (test-chopped-frames 1
   `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
@@ -86,6 +92,13 @@
   `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
 (test-chopped-frames 10
   `(:fin? #t :opcode ,opcode-binary :masking-key #f :payload-data #u8( 5 4 3 2 )))
+(test-chopped-frames 1
+  `(:fin? #t :opcode ,opcode-binary :masking-key #t :payload-data #u8( 5 4 3 2 )))
+(test-chopped-frames 2
+  `(:fin? #t :opcode ,opcode-binary :masking-key #t :payload-data #u8( 5 4 3 2 )))
+(test-chopped-frames 10
+  `(:fin? #t :opcode ,opcode-binary :masking-key #t :payload-data #u8( 5 4 3 2 )))
+
 
 (test-frames
   `(:fin? #t :opcode ,opcode-binary :masking-key #f
@@ -102,6 +115,22 @@
 (test-frames
   `(:fin? #t :opcode ,opcode-binary :masking-key #f
           :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 100000 3 7)))
+(test-frames
+  `(:fin? #t :opcode ,opcode-binary :masking-key #t
+          :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 1000 3 7)))
+(test-chopped-frames 10
+  `(:fin? #t :opcode ,opcode-binary :masking-key #t
+          :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 1000 3 7)))
+(test-chopped-frames 10
+  `(:fin? #t :opcode ,opcode-binary :masking-key #t
+          :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 10000 3 7)))
+(test-frames
+  `(:fin? #t :opcode ,opcode-binary :masking-key #t
+          :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 30000 3 7)))
+(test-frames
+  `(:fin? #t :opcode ,opcode-binary :masking-key #t
+          :payload-data ,($ list->u8vector $ map (cut modulo <> #xff) $ iota 100000 3 7)))
+
 
 (define (test-text . input-text-list)
   (let* [[ output-text-list '() ]
