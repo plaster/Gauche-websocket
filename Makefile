@@ -3,4 +3,4 @@
 all:
 
 check:
-	gosh -Ilib test/parser-test.scm
+	gosh -Ilib test/frame-test.scm

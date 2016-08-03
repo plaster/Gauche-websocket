@@ -1,13 +1,13 @@
 (use gauche.test)
 (use gauche.uvector)
 (use gauche.vport)
-(use rfc.websocket)
+(use rfc.websocket.frame)
 
-(test-start "rfc.websocket")
+(test-start "rfc.websocket.frame")
 
-(test-module 'rfc.websocket)
+(test-module 'rfc.websocket.frame)
 
-(define %table-opcode-symbol (with-module rfc.websocket %table-opcode-symbol))
+(define %table-opcode-symbol (with-module rfc.websocket.frame %table-opcode-symbol))
 
 (let [[ opcode-list (map car %table-opcode-symbol) ]
       [ opcode-symbol-list (map cdr %table-opcode-symbol) ]

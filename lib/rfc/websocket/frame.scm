@@ -1,4 +1,4 @@
-(define-module rfc.websocket
+(define-module rfc.websocket.frame
   (use gauche.uvector)
   (use gauche.parameter)
   (use gauche.generator)
@@ -32,7 +32,7 @@
     dispatch-parsed-frame$$
     dispatch-parsed-frame$
     ) )
-(select-module rfc.websocket)
+(select-module rfc.websocket.frame)
 
 ;;;; protocol specification: RFC 6455
 ;;;; https://tools.ietf.org/html/rfc6455
