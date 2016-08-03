@@ -7,7 +7,9 @@
   (use util.match)
   (export
     opcode<-symbol
+    symbol->opcode
     symbol<-opcode
+    opcode->symbol
     opcode-symbol?
     opcode?
     assert-opcode
@@ -63,11 +65,13 @@
   (%mapper<-alist (map cdr %table-opcode-symbol)
                   (map car %table-opcode-symbol)
                   (errorf "unknown symbol: ~s" <>)))
+(define symbol->opcode opcode<-symbol)
 
 (define symbol<-opcode
   (%mapper<-alist (map car %table-opcode-symbol)
                   (map (lambda (p) `',(cdr p)) %table-opcode-symbol)
                   #f))
+(define opcode->symbol symbol<-opcode)
 
 (define opcode-symbol?
   (%mapper<-alist (map cdr %table-opcode-symbol)
