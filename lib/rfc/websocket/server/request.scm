@@ -12,4 +12,9 @@
    [ header :init-keyword :header :init-form (errorf ":header missing") ]
    ])
 
+(define (request<-rfc822 header)
+  (make <websocket-server-request> :header header) )
+
+(define rfc822->request request<-rfc822)
+
 ;; vi:se expandtab:
