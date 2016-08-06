@@ -9,12 +9,12 @@
 
 (define-class <websocket-server-request> ()
   [[ state :init-value state:connecting :accessor request-state ]
-   [ header :init-keyword :header :init-form (errorf ":header missing") ]
    ])
 
-(define (request<-rfc822 header)
-  (make <websocket-server-request> :header header) )
-
-(define rfc822->request request<-rfc822)
+(define-method handshake
+  [[self <websocket-server-request>]
+   rfc822
+   ]
+  (errorf "not implemented"))
 
 ;; vi:se expandtab:
