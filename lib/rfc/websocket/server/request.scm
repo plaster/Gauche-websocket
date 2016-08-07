@@ -15,6 +15,12 @@
   [[self <websocket-server-request>]
    rfc822
    ]
-  (errorf "not implemented"))
+  (let [[ header-Upgrade (rfc822-header-ref rfc822 "Upgrade") ]
+        [ header-Connection (rfc822-header-ref rfc822 "Connection") ]
+        [ header-Sec-WebSocket-Key (rfc822-header-ref rfc822 "Sec-WebSocket-Key") ]
+        [ header-Sec-WebSocket-Version (rfc822-header-ref rfc822 "Sec-WebSocket-Version") ]
+        ]
+    (errorf "not implemented")
+    ) )
 
 ;; vi:se expandtab:
