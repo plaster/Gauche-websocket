@@ -6,12 +6,12 @@ services:
         - docker
 
 before_install:
-        - docker pull nkoguro/gauche:stable
+        - docker pull plaster/gauche
         - docker ps -a
         - ps
         - pwd
-        - docker run nkoguro/gauche:stable gosh -V
-        - docker run nkoguro/gauche:stable sh -c 'rm -rf /tmp/Gauche-websocket && mkdir /tmp/Gauche-websocket'
+        - docker run plaster/gauche gosh -V
+        - docker run plaster/gauche sh -c 'rm -rf /tmp/Gauche-websocket && mkdir /tmp/Gauche-websocket'
 
 script:
         - docker run -v /home/travis/build/plaster/Gauche-websocket:/tmp/Gauche-websocket plaster/gauche make -C /tmp/Gauche-websocket check
